@@ -20,13 +20,13 @@ jobs:
         shell: bash
         run: |
           tag=$(git describe --tags --always)
-          release_name="ytdlp.bundle-${tag}"
+          release_name="ytinforeader.bundle-${tag}"
 
           # Pack files
-          mkdir -p ./ytdlp.bundle
-          cp -rv ./Contents ./ytdlp.bundle
-          cp -v ./README.md ./ytdlp.bundle
-          7z a -tzip "${release_name}.zip" ./ytdlp.bundle
+          mkdir -p ./ytinforeader.bundle
+          cp -rv ./Contents ./ytinforeader.bundle
+          cp -v ./README.md ./ytinforeader.bundle
+          7z a -tzip "${release_name}.zip" ./ytinforeader.bundle
           echo "::set-output name=release_name::${release_name}"
           echo "::set-output name=release_tag::${tag}"
           echo "::set-output name=filename::${release_name}.zip"
