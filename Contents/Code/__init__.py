@@ -98,15 +98,15 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
                 info['poster'] = imgFile
 
             if 'title' in data:
-                info['title'] = data['title']
+                info['title'] = data['title'].strip()
             elif 'channel' in data:
-                info['title'] = data['channel']
+                info['title'] = data['channel'].strip()
             else:
-                info['title'] = data['uploader']
+                info['title'] = data['uploader'].strip()
 
-            info['summary'] = data['description'] if data['description'] else ''
+            info['summary'] = data['description'].strip() if data['description'] else ''
             info['tags'] = data['tags'] if 'tags' in data else []
-            info['studio'] = data['uploader']
+            info['studio'] = data['uploader'].strip()
 
             Log(u"getShowInfo() - info: {}".format(info))
 
@@ -167,9 +167,10 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             Log("Update(): Couldnt find channel data.")
             return
 
-        metadata.title = channelData['title']
-        metadata.studio = channelData['studio']
-        metadata.summary = channelData['summary']
+        metadata.title = channelData['title'].strip()
+        metadata.studio = channelData['studio'].strip()
+        metadata.summary = channelData['summary'].strip()
+
         if 'poster' in channelData:
             picture = Core.storage.load(channelData['poster'])
             picture_hash = hashlib.md5(picture).hexdigest()
@@ -212,8 +213,11 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
                         with open(filepath + ".info.json", encoding="utf-8") as json_file:
                             data = json.load(json_file)
 
-                        episode.title = data['fulltitle']
-                        episode.summary = data["description"]
+                        if 'fulltitle' in data:
+                            episode.title = data['fulltitle'].strip()
+
+                        if 'description' in data:
+                            episode.summary = data["description"].strip()
 
                         if 'upload_date' in data:
                             episode.originally_available_at = Datetime.ParseDate(
