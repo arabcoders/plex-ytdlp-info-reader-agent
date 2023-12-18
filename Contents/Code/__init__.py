@@ -104,11 +104,8 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             else:
                 info['title'] = data['uploader']
 
-            if 'description' in data:
-                info['summary'] = data['description']
-            else:
-                info['summary'] = ''
-
+            info['summary'] = data['description'] if data['description'] else ''
+            info['tags'] = data['tags'] if 'tags' in data else []
             info['studio'] = data['uploader']
 
             Log(u"getShowInfo() - info: {}".format(info))
@@ -178,6 +175,10 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             picture_hash = hashlib.md5(picture).hexdigest()
             metadata.posters[picture_hash] = Proxy.Media(picture, sort_order=1)
 
+        if 'tags' in channelData:
+            for tag in channelData['tags']:
+                metadata.collections.add(tag.strip())
+
         @parallelize
         def UpdateEpisodes():
             for year in media.seasons:
@@ -220,7 +221,7 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
                             if metadata.originally_available_at is None:
                                 metadata.originally_available_at = episode.originally_available_at
 
-                        if 'average_rating' in data:
+                        if 'average_rating' in data and data['average_rating'] is not None:
                             episode.rating = (data['average_rating'] * 2)
 
                         Log("Processed successfully! This episode was named '{}'".format(
