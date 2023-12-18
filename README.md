@@ -7,13 +7,13 @@ A Plex YouTube agent that works closely with yt-dlp info files require no intern
 The required structure for the agent to work is the following
 
 ```
-- Channel/Playlist name [`id`]
+Channel/Playlist name [`id`]
 - Channel/Playlist name [`id`].jpg
 - Channel/Playlist name [`id`].info.json
--- Season XXXX
---- YYYYMMDD title [id].mp4
---- YYYYMMDD title [id].jpg
---- YYYYMMDD title [id].info.json
+- Season XXXX
+-- YYYYMMDD title [id].mp4
+-- YYYYMMDD title [id].jpg
+-- YYYYMMDD title [id].info.json
 ```
 
 The `id` can be in the following format `[youtube-(id)]` or `[(id)]`. This agent does not support multiple playlists in single parent directory.
