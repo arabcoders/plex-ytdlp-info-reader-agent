@@ -104,7 +104,8 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             else:
                 info['title'] = data['uploader'].strip()
 
-            info['summary'] = data['description'].strip() if data['description'] else ''
+            info['summary'] = data['description'].strip(
+            ) if data['description'] else ''
             info['tags'] = data['tags'] if 'tags' in data else []
             info['studio'] = data['uploader'].strip()
 
@@ -182,57 +183,63 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
 
         @parallelize
         def UpdateEpisodes():
-            for year in media.seasons:
-                for shootID in media.seasons[year].episodes:
-                    episode = metadata.seasons[year].episodes[shootID]
-                    episode_media = media.seasons[year].episodes[shootID]
-                    filepath, _ = os.path.splitext(
-                        episode_media.items[0].parts[0].file)
-                    filepath = filepath.strip()
+            for s in media.seasons:
+                for e in media.seasons[s].episodes:
+                    episode = metadata.seasons[s].episodes[e]
+                    episode_media = media.seasons[s].episodes[e]
+                    episode_file = episode_media.items[0].parts[0].file
 
-                    Log("Processing: '{}' in {}".format(
-                        filepath, metadata.title))
+                    @task
+                    def updateEpisode(episode=episode, episode_file=episode_file, metadata=metadata):
+                        filepath, _ = os.path.splitext(episode_file)
+                        filepath = filepath.strip()
 
-                    # Check if there is a thumbnail for this episode
-                    for extension in self.img_exts:
-                        maybeFile = filepath + extension
-                        if os.path.isfile(maybeFile):
-                            Log("Found thumbnail {}".format(maybeFile))
-                            # we found an image, attempt to create an Proxy Media object to store it
-                            try:
-                                picture = Core.storage.load(maybeFile)
-                                picture_hash = hashlib.md5(picture).hexdigest()
-                                episode.thumbs[picture_hash] = Proxy.Media(
-                                    picture, sort_order=1)
-                                break
-                            except:
-                                Log("Could not access file '{}'".format(maybeFile))
+                        Log("updateEpisode() Processing: [{}] in [{}]".format(
+                            episode_file, metadata.title))
 
-                    # Attempt to open the .info.json file Youtube-DL stores.
-                    try:
-                        with open(filepath + ".info.json", encoding="utf-8") as json_file:
-                            data = json.load(json_file)
+                        # Check if there is a thumbnail for this episode
+                        for extension in self.img_exts:
+                            maybeFile = filepath + extension
+                            if os.path.isfile(maybeFile):
+                                Log("updateEpisode() Found thumbnail {}".format(
+                                    maybeFile))
+                                # we found an image, attempt to create an Proxy Media object to store it
+                                try:
+                                    picture = Core.storage.load(maybeFile)
+                                    picture_hash = hashlib.md5(
+                                        picture).hexdigest()
+                                    episode.thumbs[picture_hash] = Proxy.Media(
+                                        picture, sort_order=1)
+                                    break
+                                except Exception as e:
+                                    Log("updateEpisode() Could not access file [{}]. {}".format(
+                                        maybeFile, str(e)))
 
-                        if 'fulltitle' in data:
-                            episode.title = data['fulltitle'].strip()
+                        # Attempt to open the .info.json file Youtube-DL stores.
+                        try:
+                            with open(filepath + ".info.json", encoding="utf-8") as json_file:
+                                data = json.load(json_file)
 
-                        if 'description' in data:
-                            episode.summary = data["description"].strip()
+                            if 'fulltitle' in data:
+                                episode.title = data['fulltitle'].strip()
 
-                        if 'upload_date' in data:
-                            episode.originally_available_at = Datetime.ParseDate(
-                                data['upload_date']).date()
-                            if metadata.originally_available_at is None:
-                                metadata.originally_available_at = episode.originally_available_at
+                            if 'description' in data:
+                                episode.summary = data["description"].strip()
 
-                        if 'average_rating' in data and data['average_rating'] is not None:
-                            episode.rating = (data['average_rating'] * 2)
+                            if 'upload_date' in data:
+                                episode.originally_available_at = Datetime.ParseDate(
+                                    data['upload_date']).date()
+                                if metadata.originally_available_at is None:
+                                    metadata.originally_available_at = episode.originally_available_at
 
-                        Log("Processed successfully! This episode was named '{}'".format(
-                            data['fulltitle']))
-                    except IOError:
-                        # Attempt to make a title out of the filename
-                        episode.title = re.sub(
-                            '\[.{11}\]', '', os.path.basename(filepath)).strip()
-                        Log("Could not access file '{}', named the episode '{}'".format(
-                            filepath + ".info.json", episode.title))
+                            if 'average_rating' in data and data['average_rating'] is not None:
+                                episode.rating = (data['average_rating'] * 2)
+
+                            Log("updateEpisode() Processed successfully! This episode was named [{}].".format(
+                                data['fulltitle']))
+                        except IOError as e:
+                            # Attempt to make a title out of the filename
+                            episode.title = re.sub(
+                                '\[.{11}\]', '', os.path.basename(filepath)).strip()
+                            Log("updateEpisode() Could not access file [{}], named the episode [{}]. Error [{}]".format(
+                                filepath + ".info.json", episode.title, str(e)))
