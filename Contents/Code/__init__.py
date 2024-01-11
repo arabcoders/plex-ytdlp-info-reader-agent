@@ -186,8 +186,7 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             for s in media.seasons:
                 for e in media.seasons[s].episodes:
                     episode = metadata.seasons[s].episodes[e]
-                    episode_media = media.seasons[s].episodes[e]
-                    episode_file = episode_media.items[0].parts[0].file
+                    episode_file = media.seasons[s].episodes[e].items[0].parts[0].file
 
                     @task
                     def updateEpisode(episode=episode, episode_file=episode_file, metadata=metadata):
