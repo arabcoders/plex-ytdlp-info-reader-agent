@@ -1,0 +1,14 @@
+[
+    {
+        "id": "debug",
+        "label": "enable debug logging",
+        "type": "bool",
+        "default": "false"
+    },
+    {
+        "id": "allow_tags",
+        "label": "Add tags to shows.",
+        "type": "bool",
+        "default": "false"
+    }
+]

@@ -176,10 +176,14 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
             picture = Core.storage.load(channelData['poster'])
             picture_hash = hashlib.md5(picture).hexdigest()
             metadata.posters[picture_hash] = Proxy.Media(picture, sort_order=1)
+        
+        try: metadata.collections.clear()
+        except: pass
 
-        if 'tags' in channelData:
-            for tag in channelData['tags']:
-                metadata.collections.add(tag.strip())
+        if Prefs['allow_tags']:
+            if 'tags' in channelData:
+                for tag in channelData['tags']:
+                    metadata.collections.add(tag.strip())
 
         @parallelize
         def UpdateEpisodes():
