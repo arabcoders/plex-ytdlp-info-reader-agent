@@ -1,6 +1,6 @@
 # yt-dlp info reader agent.
 
-A Plex YouTube agent that works closely with yt-dlp info files require no internet connection. 
+A Plex YouTube agent that works closely with yt-dlp info files and require no internet connection. 
 
 ## What is the required directory structure?
 
@@ -40,6 +40,8 @@ The files should be in the following naming format `YYYYMMDD title [id]` with bo
 ```bash
 $ yt-dlp -I0 --write-info-json --write-thumbnail --convert-thumbnails jpg -o "%(title)s [%(id)s]/Season %(release_date>%Y,upload_date>%Y|Unknown)s/%(release_date>%Y%m%d,upload_date>%Y%m%d)s - %(title).180B [%(extractor)s-%(id)s].%(ext)s" --paths /media/youtube https://www.youtube.com/watch?v=d_pVmR_0p0E
 ```
+
+Or simply use [YTPTube](https://github.com/arabcoders/ytptube) which has pre-made preset to work with this agent.
 
 # Is other photo extensions supported?
 

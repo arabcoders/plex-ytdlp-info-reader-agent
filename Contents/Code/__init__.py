@@ -43,7 +43,10 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
 
     def getShowInfo(self, filename):
         info = {}
-        filename = urllib.unquote(filename).decode('utf8')
+        try:
+            filename = urllib.unquote(filename).decode('utf8')
+        except Exception:
+            pass
         dirName = os.path.dirname(os.path.dirname(filename))
         parentDirName = os.path.basename(dirName)
         Log(u"getShowInfo() - filename: {} dirName: {} parentDirName: {}".format(
