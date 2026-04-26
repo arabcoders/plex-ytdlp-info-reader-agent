@@ -43,6 +43,9 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
 
     def getShowInfo(self, filename):
         info = {}
+        if not filename:
+            Log(u"getShowInfo() - filename is None or empty")
+            return None
         try:
             filename = urllib.unquote(filename).decode('utf8')
         except Exception:
@@ -139,7 +142,11 @@ class YTDLPInfoReaderAgent(Agent.TV_Shows):
         Log("".ljust(60, '='))
         Log(u"Search() - Looking for: {}".format(media.show))
         Log("".ljust(60, '='))
-        json = self.getShowInfo(media.filename)
+        filename = media.filename
+        if not filename:
+            Log(u"Search() - media.filename is None, trying getFile()")
+            filename = self.getFile(media)
+        json = self.getShowInfo(filename)
         if not json:
             Log(u"Search() - No results found for: [{}]".format(media.show))
             return
